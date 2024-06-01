@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create Course</title>
+</head>
+<body>
+<h1>Create Course</h1>
+<form th:action="@{/courses/create}" th:object="${course}" method="post">
+    <label>Name: <input type="text" th:field="*{name}"/></label><br/>
+    <label>Description: <input type="text" th:field="*{description}"/></label><br/>
+    <label>Duration: <input type="number" th:field="*{duration}"/></label><br/>
+    <label>Price: <input type="number" step="0.01" th:field="*{price}"/></label><br/>
+    <label>Available: <input type="checkbox" th:field="*{available}"/></label><br/>
+    <button type="submit">Create</button>
+</form>
+<a th:href="@{/courses}">Back to list</a>
+</body>
+</html>
