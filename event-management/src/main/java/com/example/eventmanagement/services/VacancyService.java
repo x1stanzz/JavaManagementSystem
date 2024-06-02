@@ -33,7 +33,7 @@ public class VacancyService {
         return vacancyRepository.findByStatus(VacancyStatus.OPEN);
     }
 
-    public List<Vacancy> getVacanciesBeEmployer(User employer) {
+    public List<Vacancy> getVacanciesByEmployer(User employer) {
         return vacancyRepository.findByEmployer(employer);
     }
 
