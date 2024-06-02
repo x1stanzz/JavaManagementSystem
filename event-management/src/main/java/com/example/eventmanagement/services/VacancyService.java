@@ -42,4 +42,18 @@ public class VacancyService {
         vacancy.setStatus(VacancyStatus.CLOSED);
         vacancyRepository.save(vacancy);
     }
+
+    public void updateVacancy(Long id, Vacancy updatedVacancy) {
+        Vacancy existingVacancy = getVacancyById(id);
+        existingVacancy.setTitle(updatedVacancy.getTitle());
+        existingVacancy.setDescription(updatedVacancy.getDescription());
+        existingVacancy.setRequirements(updatedVacancy.getRequirements());
+        existingVacancy.setSalary(updatedVacancy.getSalary());
+        existingVacancy.setStatus(updatedVacancy.getStatus());
+        vacancyRepository.save(existingVacancy);
+    }
+
+    public void deleteVacancy(Long id) {
+        vacancyRepository.deleteById(id);
+    }
 }
