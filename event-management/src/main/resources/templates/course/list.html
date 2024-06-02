@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" lang="en">
 <head>
     <title>Courses</title>
     <link rel="stylesheet" th:href="@{/list-style.css}" />
@@ -8,7 +8,9 @@
 <body>
 <div class="container">
     <h1 class="my-4">Courses | <a class="btn btn-primary mb-3" th:href="@{/vacancies}">View Vacancies</a></h1>
-    <a class="btn btn-primary mb-3" th:href="@{/courses/create}">Create new Course</a>
+    <div sec:authorize="hasRole('EMPLOYER')">
+        <a class="btn btn-primary mb-3" th:href="@{/courses/create}">Create new Course</a>
+    </div>
     <table class="table table-striped">
         <thead class="thead-dark">
         <tr>
@@ -29,8 +31,8 @@
             <td th:text="${course.available}">Course Availability</td>
             <td>
                 <a class="btn btn-info btn-sm" th:href="@{/courses/{id}(id=${course.id})}">View</a>
-                <a class="btn btn-warning btn-sm" th:href="@{/courses/edit/{id}(id=${course.id})}">Edit</a>
-                <a class="btn btn-danger btn-sm" th:href="@{/courses/delete/{id}(id=${course.id})}">Delete</a>
+                <a sec:authorize="hasRole('EMPLOYER')" class="btn btn-warning btn-sm" th:href="@{/courses/edit/{id}(id=${course.id})}">Edit</a>
+                <a sec:authorize="hasRole('EMPLOYER')" class="btn btn-danger btn-sm" th:href="@{/courses/delete/{id}(id=${course.id})}">Delete</a>
             </td>
         </tr>
         </tbody>

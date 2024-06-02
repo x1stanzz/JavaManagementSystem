@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <title>Vacancies</title>
     <link rel="stylesheet" th:href="@{/list-style.css}" />
@@ -8,7 +8,9 @@
 <body>
 <div class="container">
     <h1 class="my-4">Vacancies | <a class="btn btn-primary mb-3" th:href="@{/courses}">View Courses</a></h1>
-    <a class="btn btn-primary mb-3" th:href="@{/vacancies/create}">Create New Vacancy</a>
+    <div sec:authorize="hasRole('EMPLOYER')">
+        <a class="btn btn-primary mb-3" th:href="@{/vacancies/create}">Create New Vacancy</a>
+    </div>
     <table class="table table-striped">
         <thead class="thead-dark">
         <tr>
@@ -29,10 +31,8 @@
             <td th:text="${vacancy.status}"></td>
             <td>
                 <a class="btn btn-info btn-sm" th:href="@{/vacancies/{id}(id=${vacancy.id})}">View</a>
-                <a class="btn btn-warning btn-sm" th:href="@{/vacancies/edit/{id}(id=${vacancy.id})}">Edit</a>
-                <a class="btn btn-danger btn-sm" th:href="@{/vacancies/delete/{id}(id=${vacancy.id})}">Delete</a>
-                <a class="btn btn-secondary btn-sm" th:if="${vacancy.status == 'OPEN'}" th:href="@{/vacancies/close/{id}(id=${vacancy.id})}">Close</a>
-                <a class="btn btn-success btn-sm" th:if="${vacancy.status == 'CLOSED'}" th:href="@{/vacancies/open/{id}(id=${vacancy.id})}">Reopen</a>
+                <a sec:authorize="hasRole('EMPLOYER')" class="btn btn-warning btn-sm" th:href="@{/vacancies/edit/{id}(id=${vacancy.id})}">Edit</a>
+                <a sec:authorize="hasRole('EMPLOYER')" class="btn btn-danger btn-sm" th:href="@{/vacancies/delete/{id}(id=${vacancy.id})}">Delete</a>
             </td>
         </tr>
         </tbody>
