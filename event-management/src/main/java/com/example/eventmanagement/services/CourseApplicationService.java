@@ -15,44 +15,40 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class CourseApplicationService {
-    private final CourseApplicationRepository applicationRepository;
-    private final CourseService courseService;
-    private final UserService userService;
+    private final CourseApplicationRepository courseApplicationRepository;
 
-    public CourseApplication applyForCourse(Long courseId, Long userId) {
-        Course course = courseService.getCourseById(courseId);
-        User user = userService.getUserById(userId);
+    public List<CourseApplication> getAllApplications() {
+        return courseApplicationRepository.findAll();
+    }
+
+    public List<CourseApplication> getApplicationsByUser(User user) {
+        return courseApplicationRepository.findByUser(user);
+    }
+
+    public List<CourseApplication> getApplicationsByCourse(Course course) {
+        return courseApplicationRepository.findByCourse(course);
+    }
+
+    public CourseApplication applyToCourse(User user, Course course) {
         CourseApplication application = new CourseApplication();
-        application.setCourse(course);
         application.setUser(user);
-        application.setStatus(ApplicationStatus.PENDING);
-        return applicationRepository.save(application);
+        application.setCourse(course);
+        application.setStatus(ApplicationStatus.PENDING); // При создании заявки ее статус будет "В ожидании"
+        return courseApplicationRepository.save(application);
     }
 
-    public List<CourseApplication> getApplicationsByUser(Long userId) {
-        User user = userService.getUserById(userId);
-        return applicationRepository.findByUser(user);
+    public CourseApplication getApplicationById(Long id) {
+        return courseApplicationRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid application ID"));
     }
 
-    public List<CourseApplication> getApplicationsByCourse(Long courseId) {
-        Course course = courseService.getCourseById(courseId);
-        return applicationRepository.findByCourse(course);
+    public void updateApplicationStatus(Long id, ApplicationStatus status) {
+        CourseApplication application = getApplicationById(id);
+        application.setStatus(status);
+        courseApplicationRepository.save(application);
     }
 
-    public void approveApplication(Long applicationId) {
-        CourseApplication application = getApplicationById(applicationId);
-        application.setStatus(ApplicationStatus.APPROVED);
-        applicationRepository.save(application);
-    }
-
-    public void rejectApplication(Long applicationId) {
-        CourseApplication application = getApplicationById(applicationId);
-        application.setStatus(ApplicationStatus.REJECTED);
-        applicationRepository.save(application);
-    }
-
-    private CourseApplication getApplicationById(Long id) {
-        return applicationRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found"));
+    public void deleteApplication(Long id) {
+        courseApplicationRepository.deleteById(id);
     }
 }

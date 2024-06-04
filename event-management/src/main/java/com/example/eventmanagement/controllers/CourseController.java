@@ -9,17 +9,18 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
+@RequestMapping("/courses")
 @RequiredArgsConstructor
 public class CourseController {
     private final CourseService courseService;
 
-    @GetMapping("/courses")
+    @GetMapping
     public String getAllCourses(Model model) {
         model.addAttribute("courses", courseService.getAllCourses());
         return "course/list";
     }
 
-    @GetMapping("/courses/{id}")
+    @GetMapping("/{id}")
     public String getCourseById(@PathVariable Long id, Model model) {
         Course course = courseService.getCourseById(id);
         model.addAttribute("course", course);
@@ -27,14 +28,14 @@ public class CourseController {
     }
 
     @PreAuthorize("hasRole('EMPLOYER')")
-    @GetMapping("/courses/create")
+    @GetMapping("/create")
     public String createCourse(@ModelAttribute Course course) {
         courseService.createCourse(course);
         return "redirect:/courses";
     }
 
     @PreAuthorize("hasRole('EMPLOYER')")
-    @GetMapping("/courses/edit/{id}")
+    @GetMapping("/edit/{id}")
     public String showEditCourseForm(@PathVariable Long id, Model model) {
         Course course = courseService.getCourseById(id);
         model.addAttribute("course", course);
@@ -42,7 +43,7 @@ public class CourseController {
     }
 
     @PreAuthorize("hasRole('EMPLOYER')")
-    @PostMapping("/courses/edit/{id}")
+    @PostMapping("/edit/{id}")
     public String updateCourse(@PathVariable Long id, @ModelAttribute Course course) {
         course.setId(id);
         courseService.createCourse(course);
@@ -50,7 +51,7 @@ public class CourseController {
     }
 
     @PreAuthorize("hasRole('EMPLOYER')")
-    @GetMapping("/courses/delete/{id}")
+    @GetMapping("/delete/{id}")
     public String deleteCourse(@PathVariable Long id) {
         courseService.deleteCourse(id);
         return "redirect:/courses";

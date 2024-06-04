@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <title>Course Details</title>
     <link rel="stylesheet" th:href="@{/view-style.css}" />
@@ -17,7 +17,12 @@
             <p><strong>Duration:</strong> <span th:text="${course.duration}"></span></p>
             <p><strong>Price:</strong> <span th:text="${course.price}"></span></p>
             <p><strong>Available:</strong> <span th:text="${course.available ? 'Yes' : 'No'}"></span></p>
-            <a th:href="@{/courses}" class="btn btn-primary">Back to list</a>
+            <div class="d-flex">
+                <form th:action="@{/applications/apply/{id}(id=${course.id})}" method="post" style="display: inline-block;">
+                    <button type="submit" class="btn btn-primary">Apply</button>
+                </form>
+                <a th:href="@{/courses}" class="btn btn-secondary ms-2">Back to list</a>
+            </div>
         </div>
     </div>
 </div>

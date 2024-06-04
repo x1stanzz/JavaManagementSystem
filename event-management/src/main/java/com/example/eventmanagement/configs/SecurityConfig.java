@@ -30,7 +30,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auths -> auths
                         .requestMatchers("/register", "/login", "/css/**").permitAll()
-                        .requestMatchers("/courses/**", "/vacancies/**").hasAnyRole("EMPLOYER", "EMPLOYEE")
+                        .requestMatchers("/**").hasAnyRole("EMPLOYER", "EMPLOYEE")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -40,6 +40,7 @@ public class SecurityConfig {
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login")
                         .permitAll()
                 );
         return http.build();
