@@ -51,4 +51,8 @@ public class CourseApplicationService {
     public void deleteApplication(Long id) {
         courseApplicationRepository.deleteById(id);
     }
+
+    public boolean hasApplied(User user, Course course) {
+        return courseApplicationRepository.existsByUserAndCourse(user, course);
+    }
 }

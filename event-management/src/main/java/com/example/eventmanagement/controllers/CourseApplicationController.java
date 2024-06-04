@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.List;
@@ -26,10 +27,15 @@ public class CourseApplicationController {
 
     @PreAuthorize("hasRole('EMPLOYEE')")
     @PostMapping("/apply/{courseId}")
-    public String applyToCourse(@PathVariable Long courseId, Principal principal) {
+    public String applyToCourse(@PathVariable Long courseId, Principal principal, RedirectAttributes redirectAttributes) {
         String email = principal.getName();
         User user = userService.getUserByEmail(email);
         Course course = courseService.getCourseById(courseId);
+        if(applicationService.hasApplied(user, course)) {
+            redirectAttributes.addFlashAttribute("error", "You have already applied to this course.");
+            return "redirect:/courses";
+        }
+
         applicationService.applyToCourse(user, course);
         return "redirect:/courses";
     }

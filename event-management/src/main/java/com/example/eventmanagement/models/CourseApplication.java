@@ -23,4 +23,8 @@ public class CourseApplication {
     private User user;
     @Enumerated(EnumType.STRING)
     private ApplicationStatus status;
+    @Column(name = "user_id", insertable = false, updatable = false)
+    private Long userId;
+    @Column(name = "course_id", insertable = false, updatable = false)
+    private Long courseId;
 }

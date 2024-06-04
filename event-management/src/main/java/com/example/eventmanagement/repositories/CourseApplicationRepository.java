@@ -10,4 +10,5 @@ import java.util.List;
 public interface CourseApplicationRepository extends JpaRepository<CourseApplication, Long> {
     List<CourseApplication> findByUser(User user);
     List<CourseApplication> findByCourse(Course course);
+    boolean existsByUserAndCourse(User user, Course course);
 }
