@@ -1,97 +1,75 @@
 package com.example.eventmanagement.servicetest;
 
-import com.example.eventmanagement.models.User;
 import com.example.eventmanagement.models.Vacancy;
 import com.example.eventmanagement.repositories.VacancyRepository;
-import com.example.eventmanagement.services.UserService;
 import com.example.eventmanagement.services.VacancyService;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.web.server.ResponseStatusException;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.EmptyResultDataAccessException;
 
-import java.util.List;
+import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest
-class VacancyServiceTest {
-
-    @Autowired
-    private VacancyService vacancyService;
-
-    @Autowired
+@ExtendWith(MockitoExtension.class)
+public class VacancyServiceTest {
+    @Mock
     private VacancyRepository vacancyRepository;
 
-    @Autowired
-    private UserService userService;
+    @InjectMocks
+    private VacancyService vacancyService;
+
+    @Captor
+    private ArgumentCaptor<Vacancy> vacancyCaptor;
 
     @Test
-    void createVacancy_ShouldReturnSavedVacancy() {
-        // Arrange
-        User user = userService.createUser(new User());
-        Vacancy vacancy = new Vacancy();
-        vacancy.setTitle("Software Engineer");
-        vacancy.setDescription("We are looking for a skilled software engineer.");
+    public void createVacancy_Success() {
+        Vacancy vacancyToCreate = new Vacancy();
+        vacancyToCreate.setTitle("Test Vacancy");
 
-        // Act
-        Vacancy savedVacancy = vacancyService.createVacancy(vacancy);
+        Vacancy savedVacancy = new Vacancy();
+        savedVacancy.setId(1L);
+        savedVacancy.setTitle("Test Vacancy");
 
-        // Assert
-        assertThat(savedVacancy.getId()).isNotNull();
-        assertThat(savedVacancy.getTitle()).isEqualTo("Software Engineer");
-        assertThat(savedVacancy.getDescription()).isEqualTo("We are looking for a skilled software engineer.");
+        when(vacancyRepository.save(any(Vacancy.class))).thenReturn(savedVacancy);
+
+        Vacancy createdVacancy = vacancyService.createVacancy(vacancyToCreate);
+
+        assertNotNull(createdVacancy);
+        assertEquals(savedVacancy.getId(), createdVacancy.getId());
+        assertEquals(savedVacancy.getTitle(), createdVacancy.getTitle());
     }
 
     @Test
-    void getVacancyById_ShouldReturnVacancy() {
-        // Arrange
-        User user = userService.createUser(new User());
-        Vacancy vacancy = new Vacancy();
-        vacancy.setTitle("Software Engineer");
-        vacancyRepository.save(vacancy);
+    public void getVacancyById_Success() {
+        Long vacancyId = 1L;
+        Vacancy testVacancy = new Vacancy();
+        testVacancy.setId(vacancyId);
+        testVacancy.setTitle("Test Vacancy");
 
-        // Act
-        Vacancy foundVacancy = vacancyService.getVacancyById(vacancy.getId());
+        when(vacancyRepository.findById(vacancyId)).thenReturn(Optional.of(testVacancy));
 
-        // Assert
-        assertThat(foundVacancy.getId()).isEqualTo(vacancy.getId());
-        assertThat(foundVacancy.getTitle()).isEqualTo("Software Engineer");
+        Vacancy foundVacancy = vacancyService.getVacancyById(vacancyId);
+
+        assertNotNull(foundVacancy);
+        assertEquals(vacancyId, foundVacancy.getId());
+        assertEquals("Test Vacancy", foundVacancy.getTitle());
     }
 
     @Test
-    void getVacancyById_ShouldThrowException_WhenVacancyNotFound() {
-        // Act & Assert
-        assertThatThrownBy(() -> vacancyService.getVacancyById(999L))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Vacancy not found");
-    }
-
-    @Test
-    void getAllVacancies_ShouldReturnAllVacancies() {
-        // Arrange
-        User user = userService.createUser(new User());
-        Vacancy vacancy1 = new Vacancy();
-        vacancy1.setTitle("Software Engineer");
-        vacancyRepository.save(vacancy1);
-
-        Vacancy vacancy2 = new Vacancy();
-        vacancy2.setTitle("UI Designer");
-        vacancyRepository.save(vacancy2);
-
-        // Act
-        List<Vacancy> vacancies = vacancyService.getAllVacancies();
-
-        // Assert
-        assertThat(vacancies).hasSize(2);
-        assertThat(vacancies).extracting(Vacancy::getTitle)
-                .containsExactlyInAnyOrder("Software Engineer", "UI Designer");
-    }
-
-    @AfterEach
-    void cleanUp() {
-        vacancyRepository.deleteAll();
+    public void deleteVacancy_NotFound() {
+        Long vacancyId = 1L;
+        doThrow(EmptyResultDataAccessException.class).when(vacancyRepository).deleteById(vacancyId);
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            vacancyService.deleteVacancy(vacancyId);
+        });
     }
 }

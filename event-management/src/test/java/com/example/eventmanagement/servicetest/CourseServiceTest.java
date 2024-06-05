@@ -3,64 +3,118 @@ package com.example.eventmanagement.servicetest;
 import com.example.eventmanagement.models.Course;
 import com.example.eventmanagement.repositories.CourseRepository;
 import com.example.eventmanagement.services.CourseService;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.web.server.ResponseStatusException;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class CourseServiceTest {
-    @Autowired
-    private CourseService courseService;
-
-    @Autowired
+    @Mock
     private CourseRepository courseRepository;
 
+    @InjectMocks
+    private CourseService courseService;
+
+    @Captor
+    private ArgumentCaptor<Course> courseCaptor;
+
     @Test
-    void createCourse_ShouldReturnSavedCourse() {
+    public void createCourse_Success() {
+        Course courseToCreate = new Course();
+        courseToCreate.setName("Test Course");
+
+        Course savedCourse = new Course();
+        savedCourse.setId(1L);
+        savedCourse.setName("Test Course");
+
+        when(courseRepository.save(any(Course.class))).thenReturn(savedCourse);
+
+        Course createdCourse = courseService.createCourse(courseToCreate);
+
+        assertNotNull(createdCourse);
+        assertEquals(savedCourse.getId(), createdCourse.getId());
+        assertEquals(savedCourse.getName(), createdCourse.getName());
+
+        verify(courseRepository, times(1)).save(courseCaptor.capture());
+        Course capturedCourse = courseCaptor.getValue();
+        assertEquals(courseToCreate.getName(), capturedCourse.getName());
+    }
+
+    @Test
+    public void getCourseById_Success() {
+        Long courseId = 1L;
         Course course = new Course();
+        course.setId(courseId);
         course.setName("Test Course");
-        course.setDescription("This is a test course");
-        course.setDuration(45);
-        course.setPrice(1000.0);
-        course.setAvailable(true);
 
-        Course savedCourse = courseService.createCourse(course);
+        when(courseRepository.findById(courseId)).thenReturn(Optional.of(course));
 
-        assertThat(savedCourse.getId()).isNotNull();
-        assertThat(savedCourse.getName()).isEqualTo("Test Course");
-        assertThat(savedCourse.getDescription()).isEqualTo("This is a test course");
-        assertThat(savedCourse.getDuration()).isEqualTo(45);
-        assertThat(savedCourse.getPrice()).isEqualTo(1000.0);
-        assertThat(savedCourse.getAvailable()).isEqualTo(true);
+        Course retrievedCourse = courseService.getCourseById(courseId);
+
+        assertNotNull(retrievedCourse);
+        assertEquals(course.getId(), retrievedCourse.getId());
+        assertEquals(course.getName(), retrievedCourse.getName());
     }
 
     @Test
-    void getCourseById_ShouldReturnCourse() {
-        Course course = new Course();
-        course.setName("Test Course");
-        courseRepository.save(course);
+    public void getAllCourses_Success() {
+        List<Course> testCourses = new ArrayList<>();
+        Course course1 = new Course();
+        course1.setId(1L);
+        course1.setName("Course1");
+        Course course2 = new Course();
+        course2.setId(2L);
+        course2.setName("Course 2");
+        testCourses.add(course1);
+        testCourses.add(course2);
 
-        Course foundCourse = courseService.getCourseById(course.getId());
+        when(courseRepository.findAll()).thenReturn(testCourses);
 
-        assertThat(foundCourse.getId()).isEqualTo(course.getId());
-        assertThat(foundCourse.getName()).isEqualTo("Test Course");
+        List<Course> allCourses = courseService.getAllCourses();
+
+        assertNotNull(allCourses);
+        assertEquals(2, allCourses.size());
+        assertEquals("Course 1", allCourses.get(0).getName());
+        assertEquals("Course 2", allCourses.get(1).getName());
     }
 
     @Test
-    void getCourseById_ShouldThrowException_WhenCourseNotFound() {
-        assertThatThrownBy(() -> courseService.getCourseById(999L))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Course not found");
+    public void deleteCourse_Success() {
+        Long courseId = 1L;
+        courseService.deleteCourse(courseId);
+
+        verify(courseRepository, times(1)).deleteById(courseId);
     }
 
-    @AfterEach
-    void cleanUp() {
-        courseRepository.deleteAll();
+    @Test
+    public void getCourseById_NotFound() {
+        when(courseRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(ResponseStatusException.class, () -> {
+            courseService.getCourseById(1L);
+        });
+    }
+
+    @Test
+    public void deleteCourse_NotFound() {
+        Long courseId = 1L;
+        doThrow(EmptyResultDataAccessException.class).when(courseRepository).deleteById(courseId);
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            courseService.deleteCourse(courseId);
+        });
     }
 }
