@@ -18,7 +18,7 @@
             <p><strong>Price:</strong> <span th:text="${course.price}"></span></p>
             <p><strong>Available:</strong> <span th:text="${course.available ? 'Yes' : 'No'}"></span></p>
             <div class="d-flex">
-                <form th:action="@{/applications/apply/{id}(id=${course.id})}" method="post" style="display: inline-block;">
+                <form sec:authorize="hasRole('EMPLOYEE')" th:action="@{/applications/apply/{id}(id=${course.id})}" method="post" style="display: inline-block;">
                     <button type="submit" class="btn btn-primary">Apply</button>
                 </form>
                 <a th:href="@{/courses}" class="btn btn-secondary ms-2">Back to list</a>
