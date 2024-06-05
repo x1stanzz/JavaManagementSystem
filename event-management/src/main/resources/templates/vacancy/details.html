@@ -17,7 +17,12 @@
             <p><strong>Requirements:</strong> <span th:text="${vacancy.requirements}"></span></p>
             <p><strong>Salary:</strong> <span th:text="${vacancy.salary}"></span></p>
             <p><strong>Status:</strong> <span th:text="${vacancy.status}"></span></p>
-            <a th:href="@{/vacancies}" class="btn btn-primary">Back to list</a>
+            <div class="d-flex">
+                <form th:action="@{/vacancy-applications/apply/{id}(id=${vacancy.id})}" method="post" style="display: inline-block;">
+                    <button type="submit" class="btn btn-primary">Apply</button>
+                </form>
+                <a th:href="@{/vacancies}" class="btn btn-primary">Back to list</a>
+            </div>
         </div>
     </div>
 </div>
