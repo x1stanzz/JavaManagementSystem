@@ -18,7 +18,7 @@
         </form>
     </div>
     <div sec:authorize="hasRole('EMPLOYER')">
-        <a class="btn btn-primary mb-3" th:href="@{/courses/create}">Create new Course</a>
+        <a class="btn btn-primary mb-3" th:href="@{/courses/create}">Create New Course</a>
     </div>
     <table class="table table-striped">
         <thead class="thead-dark">
@@ -42,7 +42,6 @@
                 <a class="btn btn-info btn-sm" th:href="@{/courses/{id}(id=${course.id})}">View</a>
                 <a sec:authorize="hasRole('EMPLOYER')" class="btn btn-warning btn-sm" th:href="@{/courses/edit/{id}(id=${course.id})}">Edit</a>
                 <a sec:authorize="hasRole('EMPLOYER')" class="btn btn-danger btn-sm" th:href="@{/courses/delete/{id}(id=${course.id})}">Delete</a>
-                <a sec:authorize="hasRole('EMPLOYER')" class="btn btn-primary btn-sm" th:href="@{/applications/manage}">Manage Applications</a>
                 <form sec:authorize="hasRole('EMPLOYEE')" th:action="@{/applications/apply/{id}(id=${course.id})}" method="post" style="display: inline-block;">
                     <button type="submit" class="btn btn-primary btn-sm">Apply</button>
                 </form>

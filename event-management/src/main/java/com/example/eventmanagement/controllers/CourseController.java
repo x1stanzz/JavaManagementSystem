@@ -1,6 +1,7 @@
 package com.example.eventmanagement.controllers;
 
 import com.example.eventmanagement.models.Course;
+import com.example.eventmanagement.models.Vacancy;
 import com.example.eventmanagement.services.CourseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,6 +30,13 @@ public class CourseController {
 
     @PreAuthorize("hasRole('EMPLOYER')")
     @GetMapping("/create")
+    public String showCreateCourseForm(Model model) {
+        model.addAttribute("course", new Course());
+        return "/course/create";
+    }
+
+    @PreAuthorize("hasRole('EMPLOYER')")
+    @PostMapping("/create")
     public String createCourse(@ModelAttribute Course course) {
         courseService.createCourse(course);
         return "redirect:/courses";
